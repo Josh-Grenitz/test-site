@@ -14,6 +14,8 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    outputs:
+      preview_url: ${{ steps.swa.outputs.static_web_app_url }}
     permissions:
        id-token: write
        contents: read
@@ -45,6 +47,28 @@ jobs:
           output_location: "dist/browser" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
+
+  comment:
+    needs: deploy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post/Update PR comment with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `🚀 **Preview environment** is ready:\n\n${process.env.PREVIEW_URL}\n\n_This link updates on each push to this PR._`;
+            const {owner, repo, number} = context.issue;
+            // Find an existing bot comment to update
+            const {data: comments} = await github.rest.issues.listComments({owner, repo, issue_number: number});
+            const existing = comments.find(c => c.user.type === 'Bot' && c.body?.includes('Preview environment'));
+            if (existing) {
+              await github.rest.issues.updateComment({owner, repo, comment_id: existing.id, body});
+            } else {
+              await github.rest.issues.createComment({owner, repo, issue_number: number, body});
+            }
+        env:
+          PREVIEW_URL: ${{ needs.build_and_deploy_job.outputs.preview_url }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
