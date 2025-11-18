@@ -1,48 +1,23 @@
-
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
-
 jobs:
-- job: Build
-  displayName: 'Build Angular App'
-  steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '20.x'
-      displayName: 'Install Node.js'
-
-    - script: |
-        npm install -g @angular/cli
-        npm install
-        ng build --prod
-      displayName: 'npm install and build'
-
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: 'dist'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/angular.zip'
-        replaceExistingArchive: true
-
-    - publish: $(Build.ArtifactStagingDirectory)/angular.zip
-      artifact: drop
-
-# Deployment job using Environment
-- deployment: DeployToEnvironment
-  displayName: 'Deploy to TestDEV Environment'
-  environment: 'TestDEV'
+- deployment: RunAngularBuildOnVM
+  displayName: 'Run Angular Build on TestDEV VM'
+  environment: 'TestDEV'   # This is your Azure DevOps Environment name
   strategy:
     runOnce:
       deploy:
         steps:
-          - download: current
-            artifact: drop
-
           - script: |
-              echo "Deploying to VM in TestDEV environment..."
-              unzip $(Pipeline.Workspace)/drop/angular.zip -d /var/www/html
-            displayName: 'Extract and Deploy'
+              echo "Running Angular build on VM in TestDEV environment..."
+              # Install Node.js
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+
+              # Install Angular CLI and build
+              npm install -g @angular/cli
+              cd /home/josh.grenitz/project   # Adjust to your code path
+              npm install
+              ng build --prod
+            displayName: 'Install Node.js and Build Angular App'
