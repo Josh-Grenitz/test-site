@@ -1,9 +1,6 @@
 trigger:
 - main
 
-pool:
-  name: "Azure Pipelines"
-
 jobs:
 - deployment: RunAngularBuildOnVM
   displayName: 'Run Angular Build on TestDEV VM'
