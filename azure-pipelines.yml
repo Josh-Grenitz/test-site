@@ -13,6 +13,7 @@ jobs:
 
         # Install Angular CLI and build
         npm install -g @angular/cli
+        mkdir -pm 777 /home/josh.grenitz/project
         cd /home/josh.grenitz/project   # Adjust to your code path
         npm install
         ng build --prod --output-path="dist"
