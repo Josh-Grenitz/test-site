@@ -13,21 +13,21 @@ jobs:
 
         # Install Angular CLI and build
         npm install -g @angular/cli
-        mkdir -pm 777 /home/josh.grenitz/project
-        cd /home/josh.grenitz/project   # Adjust to your code path
         npm install
         ng build --prod --output-path="dist"
+    - publish: $(System.DefaultWorkingDirectory)/dist
+      artifact: AngularBuild
 - deployment: DeployAngularToVM
   displayName: 'Deploy Angular App to TestDEV VM'
   environment: 'TestDEV'
   dependsOn: 'BuildAngularApp'
   strategy:
-    runOnce:
+    rolling:
       deploy:
         steps:
           - task: AzureFileCopy@6
             inputs:
-              SourcePath: '/home/josh.grenitz/project/dist/'
+              SourcePath: '$(Pipeline.Workspace)/dist'
               azureSubscription: 'Lohith-Visual Studio Professional Subscription(a40b77d3-7a31-4b18-9e78-563134d67d97)'
               Destination: 'AzureVMs'
               storage: 'grenitztestblobstorage'
