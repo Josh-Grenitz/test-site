@@ -2,24 +2,28 @@ trigger:
 - main
 
 jobs:
-- deployment: RunAngularBuildOnVM
-  displayName: 'Run Angular Build on TestDEV VM'
-  environment: 'TestDEV'   # This is your Azure DevOps Environment name
+- job: BuildAngularApp
+  displayName: 'Build Angular App'
+  steps:
+    - script: |
+        echo "Running Angular build "
+        # Install Node.js
+        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+
+        # Install Angular CLI and build
+        npm install -g @angular/cli
+        cd /home/josh.grenitz/project   # Adjust to your code path
+        npm install
+        ng build --prod --output-path="dist"
+- deployment: DeployAngularToVM
+  displayName: 'Deploy Angular App to TestDEV VM'
+  environment: 'TestDEV'
+  dependsOn: 'BuildAngularApp'
   strategy:
     runOnce:
       deploy:
         steps:
-          - script: |
-              echo "Running Angular build on VM in TestDEV environment..."
-              # Install Node.js
-              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-
-              # Install Angular CLI and build
-              npm install -g @angular/cli
-              cd /home/josh.grenitz/project   # Adjust to your code path
-              npm install
-              ng build --prod --output-path="dist"
           - task: AzureFileCopy@6
             inputs:
               SourcePath: '/home/josh.grenitz/project/dist/'
