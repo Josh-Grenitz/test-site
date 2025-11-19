@@ -30,5 +30,5 @@ jobs:
               sshEndpoint: 'Test-Linux'
               sourceFolder: '$(Pipeline.Workspace)'
               contents: '**'
-              targetFolder: '/opt/'
+              targetFolder: '/opt/app-build'
               readyTimeout: '20000'
