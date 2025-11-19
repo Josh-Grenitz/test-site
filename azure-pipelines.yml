@@ -22,7 +22,7 @@ jobs:
   environment: 'TestDEV'
   dependsOn: 'BuildAngularApp'
   strategy:
-    rolling:
+    runOnce:
       deploy:
         steps:
           - task: AzureFileCopy@6
