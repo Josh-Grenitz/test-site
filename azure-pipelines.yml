@@ -19,5 +19,17 @@ jobs:
               npm install -g @angular/cli
               cd /home/josh.grenitz/project   # Adjust to your code path
               npm install
-              ng build --prod
-            displayName: 'Install Node.js and Build Angular App'
+              ng build --prod --output-path="dist"
+          - task: AzureFileCopy@6
+            inputs:
+              SourcePath: '/home/josh.grenitz/project/dist/'
+              azureSubscription: 'Lohith-Visual Studio Professional Subscription(a40b77d3-7a31-4b18-9e78-563134d67d97)'
+              Destination: 'AzureVMs'
+              storage: 'grenitztestblobstorage'
+              resourceGroup: 'GRENITZTESTRG'
+              MachineNames: 'GrenitzTest-Linux'
+              vmsAdminUserName: 'grenitz-user'
+              vmsAdminPassword: 'Gr3nitzT3stPass!'
+              TargetPath: '/opt/'
+              CleanTargetBeforeCopy: true
+              skipCACheck: false
