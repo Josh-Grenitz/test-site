@@ -26,6 +26,7 @@ jobs:
               azureSubscription: 'Lohith-Visual Studio Professional Subscription(a40b77d3-7a31-4b18-9e78-563134d67d97)'
               Destination: 'AzureVMs'
               storage: 'grenitztestblobstorage'
+              ContainerName: 'deployment-files'
               resourceGroup: 'GRENITZTESTRG'
               MachineNames: 'GrenitzTest-Linux'
               vmsAdminUserName: 'grenitz-user'
